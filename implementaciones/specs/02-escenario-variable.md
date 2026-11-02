@@ -1,6 +1,6 @@
 # Spec 02 — Escenario variable y objetivo
 
-**Estado:** pendiente
+**Estado:** completada (02/11/2026)
 **Depende de:** 01
 **Referencia:** `implementaciones/GDD.md`, secciones 2, 4 y 13.
 

@@ -25,9 +25,14 @@ export const COLORS = {
     wallEdge: 0x64748b,
     player: 0x38bdf8,
     playerEdge: 0xe0f2fe,
+    entrance: 0xf59e0b,
+    relic: 0xfacc15,
+    relicEdge: 0xfef9c3,
+    overlay: 0x020617,
     panel: 0x0f172a,
     panelEdge: 0x334155,
     text: '#e2e8f0',
     muted: '#94a3b8',
-    accent: '#38bdf8'
+    accent: '#38bdf8',
+    victory: '#fde68a'
 };

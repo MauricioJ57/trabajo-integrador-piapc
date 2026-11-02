@@ -3,18 +3,14 @@ import {
     PLAYER_SIZE,
     PLAYER_SPEED
 } from '../config.js';
-import {
-    rectOverlapsWall,
-    tileToWorldCenter,
-    worldToTile
-} from '../world/grid.js';
 
 export class Player {
-    constructor (scene, startTile) {
+    constructor (scene, grid, startTile) {
         this.scene = scene;
+        this.grid = grid;
         this.startTile = { col: startTile.col, row: startTile.row };
         this.halfSize = PLAYER_SIZE / 2;
-        this.position = tileToWorldCenter(startTile.col, startTile.row);
+        this.position = grid.tileToWorldCenter(startTile.col, startTile.row);
 
         this.sprite = scene.add.rectangle(
             this.position.x,
@@ -49,23 +45,31 @@ export class Player {
     move (dx, dy) {
         const nextX = this.position.x + dx;
 
-        if (!rectOverlapsWall(nextX, this.position.y, this.halfSize)) {
+        if (!this.grid.rectOverlapsWall(nextX, this.position.y, this.halfSize)) {
             this.position.x = nextX;
         }
 
         const nextY = this.position.y + dy;
 
-        if (!rectOverlapsWall(this.position.x, nextY, this.halfSize)) {
+        if (!this.grid.rectOverlapsWall(this.position.x, nextY, this.halfSize)) {
             this.position.y = nextY;
         }
     }
 
     reset () {
-        this.position = tileToWorldCenter(this.startTile.col, this.startTile.row);
+        this.position = this.grid.tileToWorldCenter(
+            this.startTile.col,
+            this.startTile.row
+        );
         this.sprite.setPosition(this.position.x, this.position.y);
     }
 
+    resetTo (tile) {
+        this.startTile = { col: tile.col, row: tile.row };
+        this.reset();
+    }
+
     getTile () {
-        return worldToTile(this.position.x, this.position.y);
+        return this.grid.worldToTile(this.position.x, this.position.y);
     }
 }

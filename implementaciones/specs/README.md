@@ -8,7 +8,7 @@ prueba jugando y se cierra antes de pasar a la siguiente.
 | Orden | Spec | Depende de | Estado |
 |---|---|---|---|
 | 01 | [Base jugable](01-base-jugable.md) | — | completada |
-| 02 | [Escenario variable](02-escenario-variable.md) | 01 | pendiente |
+| 02 | [Escenario variable](02-escenario-variable.md) | 01 | completada |
 | 03 | [Búsquedas BFS y A*](03-busquedas.md) | 02 | pendiente |
 | 04 | [Guardias y navegación](04-guardias-navegacion.md) | 03 | pendiente |
 | 05 | [Percepción y FSM](05-percepcion-fsm.md) | 04 | pendiente |
