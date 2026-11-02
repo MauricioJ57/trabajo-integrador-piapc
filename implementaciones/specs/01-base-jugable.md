@@ -1,6 +1,6 @@
 # Spec 01 — Base jugable
 
-**Estado:** pendiente
+**Estado:** completada (02/11/2026)
 **Depende de:** —
 **Referencia:** `implementaciones/GDD.md`, secciones 3, 4 y 5.
 
