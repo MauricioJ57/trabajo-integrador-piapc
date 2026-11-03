@@ -1,6 +1,6 @@
 # Spec 04 — Guardias, patrullaje y navegación
 
-**Estado:** pendiente
+**Estado:** implementada (pendiente de comprobación)
 **Depende de:** 03
 **Referencia:** `implementaciones/GDD.md`, secciones 6, 10 y 11.
 
@@ -24,6 +24,8 @@ búsqueda seleccionada y una de las dos alternativas de navegación.
     esquinas.
 - Cambiar búsqueda o navegación no regenera el escenario y afecta el
   siguiente tramo calculado.
+- Con V activo se muestran las rutas restantes de ambos guardias, además de
+  la ruta del jugador.
 - Al generar un escenario nuevo se generan puntos de patrulla y rutas nuevas.
 - Las rutas no son trayectorias fijas preparadas: se recalculan sobre el
   mapa actual.
@@ -40,7 +42,8 @@ búsqueda seleccionada y una de las dos alternativas de navegación.
 1. Observar a los dos guardias recorriendo el mapa sin atravesar paredes.
 2. Alternar 3 y 4 y comprobar que el movimiento cambia entre robótico y
    suavizado.
-3. Alternar 1 y 2 y verificar que las rutas se recalculan sin regenerar el
-   mapa.
+3. Alternar 1/2 y 3/4 y verificar que el siguiente tramo se recalcula sin
+   regenerar el mapa.
 4. Presionar N y comprobar que los puntos de patrulla y las rutas cambian.
 5. Confirmar que el jugador sigue pudiendo completar el objetivo.
+6. Activar V y comprobar que se ven las rutas restantes de ambos guardias.

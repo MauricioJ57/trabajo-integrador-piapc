@@ -3,7 +3,7 @@ Nombre del proyecto: trabajo-integrador-piapc
 Nombre del juego: Turno de Noche
 Estudiante/s: Mauricio Jacki
 Estado: en desarrollo
-Versión: 0.4
+Versión: 0.5
 ---
 
 # Implementaciones
@@ -21,7 +21,8 @@ Documentación del trabajo integrador de PIAPC.
 - Spec 01 — Base jugable: completada.
 - Spec 02 — Escenario variable y objetivo: completada.
 - Spec 03 — Búsquedas BFS y A*: completada.
-- Próxima spec: 04 — Guardias y navegación.
+- Spec 04 — Guardias y navegación: implementada; pendiente de comprobación.
+- Próxima spec: 05 — Percepción y FSM, después de comprobar la 04.
 
 ## Ejecución
 
@@ -40,12 +41,15 @@ Abrir `http://localhost:8080`.
 | Reiniciar partida | R |
 | Nuevo escenario | N |
 | Elegir búsqueda BFS / A* | 1 / 2 |
+| Elegir navegación cruda / suavizada | 3 / 4 |
 | Activar o desactivar depuración | V |
 
 ## Alcance de esta etapa
 
-El prototipo genera un escenario con obstáculos, entrada marcada y reliquia.
-El jugador debe recoger la reliquia y volver a la entrada para ganar. La
-búsqueda activa (BFS o A*) calcula la ruta al objetivo y la depuración permite
-ver la ruta y las celdas exploradas. Todavía no hay guardias, navegación,
+El prototipo genera un escenario con obstáculos, entrada marcada, reliquia y
+dos guardias que patrullan puntos calculados sobre el mapa. El jugador debe
+recoger la reliquia y volver a la entrada para ganar. La búsqueda activa
+(BFS o A*) y la navegación (cruda o suavizada) afectan el siguiente tramo de
+los guardias. La depuración permite ver la ruta del jugador y las rutas
+restantes de ambos guardias. Todavía no hay visión, persecución, captura,
 FSM ni panel de opciones clickeable.

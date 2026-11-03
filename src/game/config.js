@@ -15,6 +15,10 @@ export const PANEL_HEIGHT = 704;
 export const PLAYER_SIZE = 20;
 export const PLAYER_SPEED = 130;
 
+export const GUARD_SIZE = 18;
+export const GUARD_SPEED = 70;
+export const GUARD_WAIT_MS = 1000;
+
 export const COLORS = {
     background: 0x0b0f14,
     board: 0x111827,
@@ -25,11 +29,15 @@ export const COLORS = {
     wallEdge: 0x64748b,
     player: 0x38bdf8,
     playerEdge: 0xe0f2fe,
+    guard: 0xf43f5e,
+    guardEdge: 0xffe4e6,
     entrance: 0xf59e0b,
     relic: 0xfacc15,
     relicEdge: 0xfef9c3,
     debugVisited: 0x0ea5e9,
     debugPath: 0x22d3ee,
+    debugGuardA: 0xf97316,
+    debugGuardB: 0xa78bfa,
     overlay: 0x020617,
     panel: 0x0f172a,
     panelEdge: 0x334155,

@@ -13,6 +13,7 @@ import {
     PANEL_Y,
     TILE_SIZE
 } from '../config.js';
+import { Guard } from '../entities/guard.js';
 import { Player } from '../entities/player.js';
 import { Relic } from '../entities/relic.js';
 import { Grid, TILE_WALL } from '../world/grid.js';
@@ -35,11 +36,14 @@ export class Game extends Scene
         this.hasRelic = false;
         this.gameOver = false;
         this.searchAlgorithm = 'bfs';
+        this.navigationMode = 'grid';
         this.debugEnabled = false;
         this.lastDebugStateKey = null;
+        this.guards = [];
 
         this.boardGraphics = this.add.graphics().setDepth(0);
         this.debugGraphics = this.add.graphics().setDepth(2);
+        this.guardDebugGraphics = this.add.graphics().setDepth(3);
 
         this.drawPanel();
         this.createVictoryOverlay();
@@ -64,6 +68,16 @@ export class Game extends Scene
         }
 
         this.relic = new Relic(this, this.grid, scenario.relic);
+        this.destroyGuards();
+        this.guards = scenario.guardPatrols.map((patrolPoints) => (
+            new Guard(
+                this,
+                this.grid,
+                patrolPoints,
+                this.searchAlgorithm,
+                this.navigationMode
+            )
+        ));
 
         this.lastDebugStateKey = null;
         this.hideVictory();
@@ -78,10 +92,17 @@ export class Game extends Scene
         this.gameOver = false;
         this.player.resetTo(this.scenario.entrance);
         this.relic.restore();
+        this.guards.forEach((guard) => guard.reset());
         this.lastDebugStateKey = null;
         this.hideVictory();
         this.updateStatus();
         this.updateDebugView(true);
+    }
+
+    destroyGuards ()
+    {
+        this.guards.forEach((guard) => guard.destroy());
+        this.guards = [];
     }
 
     drawBoard ()
@@ -222,25 +243,31 @@ export class Game extends Scene
             color: COLORS.text
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 350, 'V\nDepuración', {
+        this.add.text(left, PANEL_Y + 350, '3 / 4\nNavegación\ncruda / suavizada', {
             fontFamily: 'Arial',
             fontSize: '14px',
             color: COLORS.text
         }).setDepth(1);
 
-        this.statusText = this.add.text(left, PANEL_Y + 410, '', {
+        this.add.text(left, PANEL_Y + 420, 'V\nDepuración', {
+            fontFamily: 'Arial',
+            fontSize: '14px',
+            color: COLORS.text
+        }).setDepth(1);
+
+        this.statusText = this.add.text(left, PANEL_Y + 475, '', {
             fontFamily: 'Arial',
             fontSize: '14px',
             color: COLORS.victory
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 520, 'La entrada está marcada\nen naranja.', {
+        this.add.text(left, PANEL_Y + 590, 'La entrada está marcada\nen naranja.', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 575, 'Panel de opciones\npendiente (spec 06).', {
+        this.add.text(left, PANEL_Y + 645, 'Panel de opciones\npendiente (spec 06).', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
@@ -307,6 +334,18 @@ export class Game extends Scene
             this.setSearchAlgorithm('astar');
         });
 
+        this.input.keyboard.on('keydown-THREE', (event) => {
+            if (event && event.repeat) return;
+
+            this.setNavigationMode('grid');
+        });
+
+        this.input.keyboard.on('keydown-FOUR', (event) => {
+            if (event && event.repeat) return;
+
+            this.setNavigationMode('smooth');
+        });
+
         this.input.keyboard.on('keydown-V', (event) => {
             if (event && event.repeat) return;
 
@@ -321,6 +360,20 @@ export class Game extends Scene
         }
 
         this.searchAlgorithm = algorithm;
+        this.guards.forEach((guard) => guard.setAlgorithm(algorithm));
+        this.lastDebugStateKey = null;
+        this.updateStatus();
+        this.updateDebugView(true);
+    }
+
+    setNavigationMode (navigationMode)
+    {
+        if (this.navigationMode === navigationMode) {
+            return;
+        }
+
+        this.navigationMode = navigationMode;
+        this.guards.forEach((guard) => guard.setNavigation(navigationMode));
         this.lastDebugStateKey = null;
         this.updateStatus();
         this.updateDebugView(true);
@@ -349,6 +402,11 @@ export class Game extends Scene
 
         this.checkRelicPickup();
         this.checkVictory();
+
+        if (!this.gameOver) {
+            this.guards.forEach((guard) => guard.update(delta));
+        }
+
         this.updateDebugView();
     }
 
@@ -405,20 +463,20 @@ export class Game extends Scene
             this.searchAlgorithm
         ].join('|');
 
-        if (!force && stateKey === this.lastDebugStateKey) {
-            return;
+        if (force || stateKey !== this.lastDebugStateKey) {
+            this.lastDebugStateKey = stateKey;
+
+            const details = findPathWithDetails(
+                this.grid,
+                playerTile,
+                target,
+                this.searchAlgorithm
+            );
+
+            this.drawDebugView(details);
         }
 
-        this.lastDebugStateKey = stateKey;
-
-        const details = findPathWithDetails(
-            this.grid,
-            playerTile,
-            target,
-            this.searchAlgorithm
-        );
-
-        this.drawDebugView(details);
+        this.drawGuardRoutes();
     }
 
     drawDebugView (details)
@@ -465,9 +523,53 @@ export class Game extends Scene
         }
     }
 
+    drawGuardRoutes ()
+    {
+        const graphics = this.guardDebugGraphics;
+        const colors = [COLORS.debugGuardA, COLORS.debugGuardB];
+
+        graphics.clear();
+
+        if (!this.debugEnabled || this.gameOver) {
+            return;
+        }
+
+        this.guards.forEach((guard, index) => {
+            const points = guard.getRemainingRoute();
+
+            if (points.length === 0) {
+                return;
+            }
+
+            const color = colors[index % colors.length];
+
+            graphics.lineStyle(2, color, 0.9);
+
+            if (points.length > 1) {
+                graphics.beginPath();
+                graphics.moveTo(points[0].x, points[0].y);
+
+                for (let pointIndex = 1; pointIndex < points.length; pointIndex++) {
+                    graphics.lineTo(
+                        points[pointIndex].x,
+                        points[pointIndex].y
+                    );
+                }
+
+                graphics.strokePath();
+            }
+
+            const lastPoint = points[points.length - 1];
+
+            graphics.fillStyle(color, 1);
+            graphics.fillCircle(lastPoint.x, lastPoint.y, 3);
+        });
+    }
+
     clearDebugView ()
     {
         this.debugGraphics.clear();
+        this.guardDebugGraphics.clear();
         this.lastDebugStateKey = null;
     }
 
@@ -489,6 +591,9 @@ export class Game extends Scene
     updateStatus ()
     {
         const algorithmLabel = this.searchAlgorithm === 'astar' ? 'A*' : 'BFS';
+        const navigationLabel = this.navigationMode === 'smooth'
+            ? 'suavizada'
+            : 'cruda';
         const debugLabel = this.debugEnabled ? 'ON' : 'OFF';
         const relicState = this.gameOver
             ? 'entregada'
@@ -497,7 +602,7 @@ export class Game extends Scene
                 : 'pendiente';
 
         this.statusText.setText(
-            `Búsqueda: ${algorithmLabel}\nDepuración: ${debugLabel}\n\nReliquia: ${relicState}`
+            `Búsqueda: ${algorithmLabel}\nNavegación: ${navigationLabel}\nDepuración: ${debugLabel}\n\nReliquia: ${relicState}`
         );
     }
 }
