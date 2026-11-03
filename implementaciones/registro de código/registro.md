@@ -257,7 +257,7 @@ $script | node --input-type=module -
 
 ## Spec 05 — Percepción y FSM
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Fecha:** 03/11/2026
 
 ### Archivos creados
@@ -282,8 +282,8 @@ $script | node --input-type=module -
 
 ### Comprobaciones para el autor
 
-No se ejecutaron durante esta implementación. Ejecutar desde la raíz del
-proyecto.
+El autor confirmó el funcionamiento jugable. Los comandos quedan como
+referencia y no fueron ejecutados por el agente.
 
 ```powershell
 npm.cmd run build
@@ -421,3 +421,48 @@ $script | node --input-type=module -
 - Confirmar que el jugador sigue siendo más rápido que un guardia en CHASE.
 - Verificar que la victoria con la reliquia sigue funcionando y que R/N
   restauran correctamente jugador, reliquia y guardias.
+
+## Spec 06 — UI y bucle completo
+
+**Estado:** implementada (pendiente de comprobación)
+**Fecha:** 03/11/2026
+
+### Archivos modificados
+
+| Ruta | Cambio |
+|---|---|
+| `src/game/scenes/Game.js` | Panel lateral con botones clickeables, estados activos/deshabilitados, estado de partida y bloqueo de opciones en victoria/derrota. |
+| `src/game/entities/guard.js` | Etiqueta de estado a 11 px y cono con mayor opacidad, sin cambios de comportamiento. |
+| `implementaciones/README.md` | Versión 0.7, estados de specs 05/06, controles y alcance actualizados. |
+| `implementaciones/specs/05-percepcion-fsm.md` | Estado actualizado a completada tras la verificación del autor. |
+| `implementaciones/specs/06-ui-bucle-completo.md` | Estado, implementación, comportamiento y pruebas actualizados. |
+| `implementaciones/specs/README.md` | Estados de las specs 05 y 06 actualizados. |
+| `implementaciones/registro de código/registro.md` | Este documento de registro. |
+
+### Comprobaciones para el autor
+
+No se ejecutaron durante esta implementación. Ejecutar desde la raíz del
+proyecto.
+
+```powershell
+npm.cmd run build
+```
+
+- Iniciar con `npm.cmd run dev`, abrir `http://localhost:8080` y completar una
+  partida usando solo los botones del panel.
+- Probar BFS/A* y Grilla/Suavizada con mouse y con 1/2/3/4; confirmar que los
+  botones activos cambian solo de borde y texto.
+- Comprobar que cambiar búsqueda o navegación no regenera el mapa, la reliquia
+  ni los puntos de patrulla.
+- Usar Nuevo escenario y Reiniciar desde el panel; verificar que también
+  responden N y R.
+- Perder y ganar: en ambos casos solo deben quedar activos Reiniciar y Nuevo
+  escenario; 1/2/3/4/V deben ignorarse. R y N deben seguir funcionando.
+- Revisar el bloque de estado: búsqueda, navegación, depuración, situación de
+  la partida y reliquia.
+- Confirmar que el panel no tapa el tablero ni impide completar el objetivo.
+- Verificar que las etiquetas PATROL/CHASE/SEARCH/RETURN y los conos se leen
+  con claridad.
+- Comprobar que el overlay de victoria/derrota cubre el tablero y no el panel,
+  y que los botones siguen siendo clickeables después de reiniciar o generar
+  un escenario nuevo.

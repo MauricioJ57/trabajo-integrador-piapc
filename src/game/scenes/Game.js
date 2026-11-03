@@ -41,6 +41,7 @@ export class Game extends Scene
         this.debugEnabled = false;
         this.lastDebugStateKey = null;
         this.guards = [];
+        this.panelControls = null;
 
         this.boardGraphics = this.add.graphics().setDepth(0);
         this.debugGraphics = this.add.graphics().setDepth(2);
@@ -204,6 +205,11 @@ export class Game extends Scene
         graphics.strokeRect(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT);
 
         const left = PANEL_X + 16;
+        const fullWidth = PANEL_WIDTH - 32;
+        const columnWidth = 84;
+        const columnGap = 8;
+        const secondColumn = left + columnWidth + columnGap;
+        const buttonHeight = 30;
 
         this.add.text(left, PANEL_Y + 16, 'TURNO DE NOCHE', {
             fontFamily: 'Arial Black, Arial',
@@ -211,71 +217,249 @@ export class Game extends Scene
             color: COLORS.text
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 56, 'ESCENARIO Y OBJETIVO', {
+        this.add.text(left, PANEL_Y + 54, 'PANEL DE CONTROL', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.accent
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 100, 'CONTROLES', {
+        this.add.text(left, PANEL_Y + 84, 'BÚSQUEDA', {
             fontFamily: 'Arial Black, Arial',
+            fontSize: '11px',
+            color: COLORS.muted
+        }).setDepth(1);
+
+        this.panelControls = {
+            bfs: this.createPanelButton({
+                x: left,
+                y: PANEL_Y + 104,
+                width: columnWidth,
+                height: buttonHeight,
+                label: 'BFS (1)',
+                action: () => this.setSearchAlgorithm('bfs')
+            }),
+            astar: this.createPanelButton({
+                x: secondColumn,
+                y: PANEL_Y + 104,
+                width: columnWidth,
+                height: buttonHeight,
+                label: 'A* (2)',
+                action: () => this.setSearchAlgorithm('astar')
+            })
+        };
+
+        this.add.text(left, PANEL_Y + 148, 'NAVEGACIÓN', {
+            fontFamily: 'Arial Black, Arial',
+            fontSize: '11px',
+            color: COLORS.muted
+        }).setDepth(1);
+
+        this.panelControls.grid = this.createPanelButton({
+            x: left,
+            y: PANEL_Y + 168,
+            width: columnWidth,
+            height: buttonHeight,
+            label: 'Grilla (3)',
+            action: () => this.setNavigationMode('grid')
+        });
+
+        this.panelControls.smooth = this.createPanelButton({
+            x: secondColumn,
+            y: PANEL_Y + 168,
+            width: columnWidth,
+            height: buttonHeight,
+            label: 'Suavizada (4)',
+            action: () => this.setNavigationMode('smooth')
+        });
+
+        this.add.text(left, PANEL_Y + 212, 'ESCENARIO', {
+            fontFamily: 'Arial Black, Arial',
+            fontSize: '11px',
+            color: COLORS.muted
+        }).setDepth(1);
+
+        this.panelControls.newScenario = this.createPanelButton({
+            x: left,
+            y: PANEL_Y + 232,
+            width: fullWidth,
+            height: buttonHeight,
+            label: 'Nuevo escenario (N)',
+            action: () => this.startScenario(generateScenario()),
+            canDisable: false
+        });
+
+        this.panelControls.restart = this.createPanelButton({
+            x: left,
+            y: PANEL_Y + 270,
+            width: fullWidth,
+            height: buttonHeight,
+            label: 'Reiniciar (R)',
+            action: () => this.restartScenario(),
+            canDisable: false
+        });
+
+        this.add.text(left, PANEL_Y + 312, 'DEPURACIÓN', {
+            fontFamily: 'Arial Black, Arial',
+            fontSize: '11px',
+            color: COLORS.muted
+        }).setDepth(1);
+
+        this.panelControls.debug = this.createPanelButton({
+            x: left,
+            y: PANEL_Y + 332,
+            width: fullWidth,
+            height: buttonHeight,
+            label: 'Depuración (V)',
+            action: () => this.toggleDebug()
+        });
+
+        this.add.text(left, PANEL_Y + 370, 'ESTADO', {
+            fontFamily: 'Arial Black, Arial',
+            fontSize: '11px',
+            color: COLORS.muted
+        }).setDepth(1);
+
+        this.statusText = this.add.text(left, PANEL_Y + 388, '', {
+            fontFamily: 'Arial',
             fontSize: '13px',
-            color: COLORS.muted
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 128, 'WASD / Flechas\nMover', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
             color: COLORS.text
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 185, 'R\nReiniciar partida', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.text
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 240, 'N\nNuevo escenario', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.text
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 295, '1 / 2\nBúsqueda BFS / A*', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.text
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 350, '3 / 4\nNavegación\ncruda / suavizada', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.text
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 420, 'V\nDepuración', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.text
-        }).setDepth(1);
-
-        this.statusText = this.add.text(left, PANEL_Y + 475, '', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: COLORS.victory
-        }).setDepth(1);
-
-        this.add.text(left, PANEL_Y + 590, 'La entrada está marcada\nen naranja.', {
+        this.add.text(left, PANEL_Y + 530, 'WASD / Flechas\nMover', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 645, 'Panel de opciones\npendiente (spec 06).', {
+        this.add.text(left, PANEL_Y + 600, 'La entrada está marcada\nen naranja.', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
         }).setDepth(1);
+    }
+
+    createPanelButton ({
+        x,
+        y,
+        width,
+        height,
+        label,
+        action,
+        canDisable = true
+    })
+    {
+        const rectangle = this.add.rectangle(
+            x + width / 2,
+            y + height / 2,
+            width,
+            height,
+            COLORS.panel
+        )
+            .setStrokeStyle(1, COLORS.panelEdge, 1)
+            .setDepth(2)
+            .setInteractive({ useHandCursor: true });
+
+        const text = this.add.text(
+            x + width / 2,
+            y + height / 2,
+            label,
+            {
+                fontFamily: 'Arial',
+                fontSize: '12px',
+                color: COLORS.text
+            }
+        )
+            .setOrigin(0.5)
+            .setDepth(3);
+
+        const control = {
+            rectangle,
+            text,
+            action,
+            canDisable,
+            active: false,
+            enabled: true,
+            hovered: false,
+            applyState () {
+                const disabled = this.canDisable && !this.enabled;
+
+                if (disabled) {
+                    this.hovered = false;
+                }
+
+                const active = !disabled && this.active;
+                const hovered = !disabled && this.hovered;
+                const strokeColor = active || hovered
+                    ? COLORS.player
+                    : COLORS.panelEdge;
+
+                this.rectangle.setStrokeStyle(1, strokeColor, 1);
+                this.rectangle.setAlpha(disabled ? 0.35 : 1);
+                this.text.setAlpha(disabled ? 0.45 : 1);
+                this.text.setColor(
+                    active
+                        ? COLORS.accent
+                        : disabled
+                            ? COLORS.muted
+                            : COLORS.text
+                );
+
+                if (this.rectangle.input) {
+                    this.rectangle.input.enabled = !disabled;
+                    this.rectangle.input.cursor = disabled
+                        ? 'default'
+                        : 'pointer';
+                }
+            },
+            setState (active, enabled) {
+                this.active = active;
+                this.enabled = enabled;
+                this.applyState();
+            }
+        };
+
+        rectangle.on('pointerover', () => {
+            if (control.canDisable && !control.enabled) {
+                return;
+            }
+
+            control.hovered = true;
+            control.applyState();
+        });
+
+        rectangle.on('pointerout', () => {
+            control.hovered = false;
+            control.applyState();
+        });
+
+        rectangle.on('pointerdown', () => {
+            if (control.canDisable && !control.enabled) {
+                return;
+            }
+
+            control.action();
+        });
+
+        control.applyState();
+        return control;
+    }
+
+    updatePanelState ()
+    {
+        if (!this.panelControls) {
+            return;
+        }
+
+        const enabled = !this.gameOver;
+        const controls = this.panelControls;
+
+        controls.bfs.setState(this.searchAlgorithm === 'bfs', enabled);
+        controls.astar.setState(this.searchAlgorithm === 'astar', enabled);
+        controls.grid.setState(this.navigationMode === 'grid', enabled);
+        controls.smooth.setState(this.navigationMode === 'smooth', enabled);
+        controls.debug.setState(this.debugEnabled, enabled);
+        controls.newScenario.setState(false, true);
+        controls.restart.setState(false, true);
     }
 
     createVictoryOverlay ()
@@ -390,7 +574,7 @@ export class Game extends Scene
 
     setSearchAlgorithm (algorithm)
     {
-        if (this.searchAlgorithm === algorithm) {
+        if (this.gameOver || this.searchAlgorithm === algorithm) {
             return;
         }
 
@@ -403,7 +587,7 @@ export class Game extends Scene
 
     setNavigationMode (navigationMode)
     {
-        if (this.navigationMode === navigationMode) {
+        if (this.gameOver || this.navigationMode === navigationMode) {
             return;
         }
 
@@ -416,6 +600,10 @@ export class Game extends Scene
 
     toggleDebug ()
     {
+        if (this.gameOver) {
+            return;
+        }
+
         this.debugEnabled = !this.debugEnabled;
         this.lastDebugStateKey = null;
         this.updateStatus();
@@ -649,6 +837,11 @@ export class Game extends Scene
             ? 'suavizada'
             : 'cruda';
         const debugLabel = this.debugEnabled ? 'ON' : 'OFF';
+        const gameState = this.gameResult === 'victory'
+            ? 'victoria'
+            : this.gameResult === 'defeat'
+                ? 'derrota'
+                : 'en juego';
         const relicState = this.gameResult === 'victory'
             ? 'entregada'
             : this.hasRelic
@@ -656,7 +849,8 @@ export class Game extends Scene
                 : 'pendiente';
 
         this.statusText.setText(
-            `Búsqueda: ${algorithmLabel}\nNavegación: ${navigationLabel}\nDepuración: ${debugLabel}\n\nReliquia: ${relicState}`
+            `Búsqueda: ${algorithmLabel}\nNavegación: ${navigationLabel}\nDepuración: ${debugLabel}\nEstado: ${gameState}\nReliquia: ${relicState}`
         );
+        this.updatePanelState();
     }
 }

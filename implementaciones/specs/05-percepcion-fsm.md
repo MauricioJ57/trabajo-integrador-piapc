@@ -1,6 +1,6 @@
 # Spec 05 — Percepción y FSM
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Fecha:** 03/11/2026
 **Depende de:** 04
 **Referencia:** `implementaciones/GDD.md`, secciones 6, 7, 8 y 13.

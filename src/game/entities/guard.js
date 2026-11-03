@@ -84,7 +84,7 @@ export class Guard {
             this.state,
             {
                 fontFamily: 'Arial Black, Arial',
-                fontSize: '10px',
+                fontSize: '11px',
                 color: COLORS.text,
                 stroke: '#000000',
                 strokeThickness: 2
@@ -537,9 +537,9 @@ export class Guard {
         );
 
         graphics.clear();
-        graphics.fillStyle(color, 0.12);
+        graphics.fillStyle(color, 0.14);
         graphics.fillPoints(points, true);
-        graphics.lineStyle(1, color, 0.5);
+        graphics.lineStyle(1, color, 0.65);
         graphics.strokePoints(points, true);
     }
 
