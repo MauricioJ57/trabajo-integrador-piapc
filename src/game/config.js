@@ -28,6 +28,8 @@ export const COLORS = {
     entrance: 0xf59e0b,
     relic: 0xfacc15,
     relicEdge: 0xfef9c3,
+    debugVisited: 0x0ea5e9,
+    debugPath: 0x22d3ee,
     overlay: 0x020617,
     panel: 0x0f172a,
     panelEdge: 0x334155,

@@ -16,6 +16,7 @@ import {
 import { Player } from '../entities/player.js';
 import { Relic } from '../entities/relic.js';
 import { Grid, TILE_WALL } from '../world/grid.js';
+import { findPathWithDetails } from '../world/pathfinding.js';
 import { generateScenario } from '../world/scenario.js';
 
 export class Game extends Scene
@@ -33,8 +34,12 @@ export class Game extends Scene
         this.grid = new Grid(this.scenario.map);
         this.hasRelic = false;
         this.gameOver = false;
+        this.searchAlgorithm = 'bfs';
+        this.debugEnabled = false;
+        this.lastDebugStateKey = null;
 
         this.boardGraphics = this.add.graphics().setDepth(0);
+        this.debugGraphics = this.add.graphics().setDepth(2);
 
         this.drawPanel();
         this.createVictoryOverlay();
@@ -60,9 +65,11 @@ export class Game extends Scene
 
         this.relic = new Relic(this, this.grid, scenario.relic);
 
+        this.lastDebugStateKey = null;
         this.hideVictory();
         this.drawBoard();
         this.updateStatus();
+        this.updateDebugView(true);
     }
 
     restartScenario ()
@@ -71,8 +78,10 @@ export class Game extends Scene
         this.gameOver = false;
         this.player.resetTo(this.scenario.entrance);
         this.relic.restore();
+        this.lastDebugStateKey = null;
         this.hideVictory();
         this.updateStatus();
+        this.updateDebugView(true);
     }
 
     drawBoard ()
@@ -195,31 +204,43 @@ export class Game extends Scene
             color: COLORS.text
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 190, 'R\nReiniciar partida', {
+        this.add.text(left, PANEL_Y + 185, 'R\nReiniciar partida', {
             fontFamily: 'Arial',
             fontSize: '14px',
             color: COLORS.text
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 250, 'N\nNuevo escenario', {
+        this.add.text(left, PANEL_Y + 240, 'N\nNuevo escenario', {
             fontFamily: 'Arial',
             fontSize: '14px',
             color: COLORS.text
         }).setDepth(1);
 
-        this.statusText = this.add.text(left, PANEL_Y + 330, '', {
+        this.add.text(left, PANEL_Y + 295, '1 / 2\nBúsqueda BFS / A*', {
+            fontFamily: 'Arial',
+            fontSize: '14px',
+            color: COLORS.text
+        }).setDepth(1);
+
+        this.add.text(left, PANEL_Y + 350, 'V\nDepuración', {
+            fontFamily: 'Arial',
+            fontSize: '14px',
+            color: COLORS.text
+        }).setDepth(1);
+
+        this.statusText = this.add.text(left, PANEL_Y + 410, '', {
             fontFamily: 'Arial',
             fontSize: '14px',
             color: COLORS.victory
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 460, 'La entrada está marcada\nen naranja.', {
+        this.add.text(left, PANEL_Y + 520, 'La entrada está marcada\nen naranja.', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
         }).setDepth(1);
 
-        this.add.text(left, PANEL_Y + 530, 'Panel de opciones\npendiente (spec 06).', {
+        this.add.text(left, PANEL_Y + 575, 'Panel de opciones\npendiente (spec 06).', {
             fontFamily: 'Arial',
             fontSize: '12px',
             color: COLORS.muted
@@ -273,6 +294,44 @@ export class Game extends Scene
 
             this.startScenario(generateScenario());
         });
+
+        this.input.keyboard.on('keydown-ONE', (event) => {
+            if (event && event.repeat) return;
+
+            this.setSearchAlgorithm('bfs');
+        });
+
+        this.input.keyboard.on('keydown-TWO', (event) => {
+            if (event && event.repeat) return;
+
+            this.setSearchAlgorithm('astar');
+        });
+
+        this.input.keyboard.on('keydown-V', (event) => {
+            if (event && event.repeat) return;
+
+            this.toggleDebug();
+        });
+    }
+
+    setSearchAlgorithm (algorithm)
+    {
+        if (this.searchAlgorithm === algorithm) {
+            return;
+        }
+
+        this.searchAlgorithm = algorithm;
+        this.lastDebugStateKey = null;
+        this.updateStatus();
+        this.updateDebugView(true);
+    }
+
+    toggleDebug ()
+    {
+        this.debugEnabled = !this.debugEnabled;
+        this.lastDebugStateKey = null;
+        this.updateStatus();
+        this.updateDebugView(true);
     }
 
     update (_time, delta)
@@ -290,6 +349,7 @@ export class Game extends Scene
 
         this.checkRelicPickup();
         this.checkVictory();
+        this.updateDebugView();
     }
 
     checkRelicPickup ()
@@ -326,12 +386,98 @@ export class Game extends Scene
         }
     }
 
+    updateDebugView (force = false)
+    {
+        if (!this.debugEnabled || this.gameOver) {
+            this.clearDebugView();
+            return;
+        }
+
+        const playerTile = this.player.getTile();
+        const target = this.hasRelic
+            ? this.scenario.entrance
+            : this.relic.tile;
+        const stateKey = [
+            playerTile.col,
+            playerTile.row,
+            target.col,
+            target.row,
+            this.searchAlgorithm
+        ].join('|');
+
+        if (!force && stateKey === this.lastDebugStateKey) {
+            return;
+        }
+
+        this.lastDebugStateKey = stateKey;
+
+        const details = findPathWithDetails(
+            this.grid,
+            playerTile,
+            target,
+            this.searchAlgorithm
+        );
+
+        this.drawDebugView(details);
+    }
+
+    drawDebugView (details)
+    {
+        const graphics = this.debugGraphics;
+
+        graphics.clear();
+
+        for (const cell of details.visited) {
+            if (!this.grid.isWalkable(cell.col, cell.row)) {
+                continue;
+            }
+
+            graphics.fillStyle(COLORS.debugVisited, 0.16);
+            graphics.fillRect(
+                BOARD_X + cell.col * TILE_SIZE + 1,
+                BOARD_Y + cell.row * TILE_SIZE + 1,
+                TILE_SIZE - 2,
+                TILE_SIZE - 2
+            );
+        }
+
+        if (!details.path || details.path.length === 0) {
+            return;
+        }
+
+        const points = details.path.map((cell) => (
+            this.grid.tileToWorldCenter(cell.col, cell.row)
+        ));
+
+        graphics.lineStyle(3, COLORS.debugPath, 0.95);
+        graphics.beginPath();
+        graphics.moveTo(points[0].x, points[0].y);
+
+        for (let index = 1; index < points.length; index++) {
+            graphics.lineTo(points[index].x, points[index].y);
+        }
+
+        graphics.strokePath();
+        graphics.fillStyle(COLORS.debugPath, 1);
+
+        for (const point of points) {
+            graphics.fillCircle(point.x, point.y, 3);
+        }
+    }
+
+    clearDebugView ()
+    {
+        this.debugGraphics.clear();
+        this.lastDebugStateKey = null;
+    }
+
     showVictory ()
     {
         this.gameOver = true;
         this.victoryOverlay.setVisible(true);
         this.victoryText.setVisible(true);
         this.updateStatus();
+        this.updateDebugView(true);
     }
 
     hideVictory ()
@@ -342,6 +488,8 @@ export class Game extends Scene
 
     updateStatus ()
     {
+        const algorithmLabel = this.searchAlgorithm === 'astar' ? 'A*' : 'BFS';
+        const debugLabel = this.debugEnabled ? 'ON' : 'OFF';
         const relicState = this.gameOver
             ? 'entregada'
             : this.hasRelic
@@ -349,7 +497,7 @@ export class Game extends Scene
                 : 'pendiente';
 
         this.statusText.setText(
-            `Reliquia: ${relicState}\n\nN: nuevo escenario\nR: reiniciar`
+            `Búsqueda: ${algorithmLabel}\nDepuración: ${debugLabel}\n\nReliquia: ${relicState}`
         );
     }
 }

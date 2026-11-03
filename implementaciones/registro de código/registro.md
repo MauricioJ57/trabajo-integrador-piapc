@@ -87,3 +87,46 @@ terminar cada implementación.
 - Probar R durante la partida y después de la victoria: debe conservar el
   mapa y restaurar jugador y reliquia.
 - Comprobar que N reemplaza el mapa y que la colisión sigue funcionando.
+
+## Spec 03 — Búsquedas BFS y A*
+
+**Estado:** completada
+**Fecha:** 02/11/2026
+
+### Archivos creados
+
+| Ruta | Cambio |
+|---|---|
+| `src/game/world/pathfinding.js` | BFS y A* en 4 direcciones, reconstrucción de ruta y registro de celdas visitadas. |
+
+### Archivos modificados
+
+| Ruta | Cambio |
+|---|---|
+| `src/game/scenes/Game.js` | Selección BFS/A* con 1/2, depuración con V, panel de estado y dibujo de celdas visitadas y ruta. |
+| `src/game/config.js` | Colores `debugVisited` y `debugPath`. |
+| `implementaciones/README.md` | Versión 0.4, estado de spec 03, controles y alcance actualizados. |
+| `implementaciones/specs/03-busquedas.md` | Estado completada y ruta hacia la entrada después de recoger la reliquia. |
+| `implementaciones/specs/README.md` | Estado de la spec 03 actualizado a completada. |
+| `implementaciones/registro de código/registro.md` | Este documento de registro. |
+
+### Comprobaciones realizadas
+
+- `node`: 500 escenarios generados; todas las rutas BFS y A* son válidas,
+  respetan obstáculos y tienen la misma longitud.
+- `node`: BFS y A* devuelven una ruta de una celda cuando origen y destino
+  coinciden, y `null` cuando el destino está bloqueado.
+- `node`: las celdas visitadas incluyen el origen en ambos algoritmos.
+- `npm.cmd run build`: compilación de producción completada correctamente.
+- Chrome headless: panel con BFS y depuración apagada; con V se dibujan ruta y
+  celdas visitadas; con 2 el panel pasa a A* y la ruta se mantiene válida.
+- Servidor Vite: renderizado verificado con capturas headless.
+
+### Pendiente de prueba manual
+
+- Alternar 1 y 2 en el mismo mapa y comparar ruta y celdas exploradas.
+- Moverse con la depuración activa y confirmar que la ruta se recalcula y
+  esquiva obstáculos.
+- Generar escenarios con N y comprobar que la depuración sigue funcionando.
+- Recoger la reliquia y confirmar que la ruta apunta a la entrada.
+- Probar R antes y después de la victoria con la depuración activa.

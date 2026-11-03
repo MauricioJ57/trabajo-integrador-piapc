@@ -1,6 +1,6 @@
 # Spec 03 — Búsquedas BFS y A*
 
-**Estado:** pendiente
+**Estado:** completada
 **Depende de:** 02
 **Referencia:** `implementaciones/GDD.md`, secciones 9 y 14.
 
@@ -23,6 +23,7 @@ depuración que permita observar rutas y celdas exploradas.
   calculada entre el jugador y la reliquia.
 - La ruta se actualiza al moverse el jugador, al cambiar de algoritmo o al
   generar un escenario nuevo.
+- Después de recoger la reliquia, la ruta de depuración apunta a la entrada.
 
 ## Fuera de alcance
 
@@ -38,3 +39,4 @@ depuración que permita observar rutas y celdas exploradas.
 3. Moverse y confirmar que la ruta se recalcula y esquiva obstáculos.
 4. Generar otro escenario y verificar que la ruta sigue siendo válida.
 5. Comprobar que cambiar de algoritmo no cambia el mapa.
+6. Recoger la reliquia y confirmar que la ruta apunta a la entrada.
