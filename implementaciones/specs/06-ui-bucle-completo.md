@@ -1,6 +1,6 @@
 # Spec 06 — UI y bucle completo
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Fecha:** 03/11/2026
 **Depende de:** 05
 **Referencia:** `implementaciones/GDD.md`, secciones 3, 12, 13 y 14.

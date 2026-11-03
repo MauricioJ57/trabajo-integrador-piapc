@@ -424,7 +424,7 @@ $script | node --input-type=module -
 
 ## Spec 06 — UI y bucle completo
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Fecha:** 03/11/2026
 
 ### Archivos modificados
@@ -466,3 +466,55 @@ npm.cmd run build
 - Comprobar que el overlay de victoria/derrota cubre el tablero y no el panel,
   y que los botones siguen siendo clickeables después de reiniciar o generar
   un escenario nuevo.
+
+## Spec 07 — Entrega y presentación
+
+**Estado:** completada
+**Fecha:** 03/11/2026
+
+### Archivos modificados
+
+| Ruta | Cambio |
+|---|---|
+| `README.md` | README final con descripción, requisitos, ejecución, controles, documentación, limitaciones, modelo de IA, guion de presentación de 8 a 10 minutos y consigna original conservada. |
+| `implementaciones/specs/06-ui-bucle-completo.md` | Estado actualizado a completada tras la verificación del autor. |
+| `implementaciones/specs/07-entrega-presentacion.md` | Estado, implementación, comportamiento y comprobaciones actualizados; el guion se integra en el README raíz. |
+| `implementaciones/README.md` | Versión 1.0, estados de specs 06/07, enlace al README principal y alcance del prototipo actualizados. |
+| `implementaciones/specs/README.md` | Estados de las specs 06 y 07 actualizados y nota sobre la presentación en el README raíz. |
+| `implementaciones/registro de código/registro.md` | Este documento de registro. |
+
+No se modificaron `src/`, `package.json` ni `screenshot.png`, y no se creó
+ningún documento nuevo.
+
+### Comprobaciones para el autor
+
+No se ejecutaron durante esta implementación. Ejecutar desde la raíz del
+proyecto.
+
+```powershell
+npm.cmd install
+npm.cmd run dev
+```
+
+- Seguir el README desde una copia limpia y confirmar que no requiere pasos
+  adicionales ni variables de entorno.
+- Abrir `http://localhost:8080` y jugar una partida completa: recoger la
+  reliquia, volver a la entrada y comprobar la victoria.
+- Perder una partida, reiniciar con R y generar un escenario nuevo con N.
+- Alternar BFS/A* con 1/2, grilla/suavizada con 3/4 y depuración con V.
+- Revisar que el guion de presentación cubra búsqueda, navegación, percepción,
+  NPC, FSM, escenarios variables, patrullaje adaptativo, OpenCode/spec-driven y
+  limitaciones.
+- Cronometrar el guion y confirmar que se puede exponer en 8 a 10 minutos.
+- Verificar que los enlaces a GDD, índice de specs y registro de código
+  funcionen.
+- Confirmar que la consigna original se conservó al final del README.
+- Confirmar que no se creó `implementaciones/PRESENTACION.md` ni otro documento
+  nuevo y que `screenshot.png` no se referencia en el README.
+
+```powershell
+npm.cmd run build
+```
+
+- Verificar que la build de producción termina correctamente y se genera en
+  `dist/`.

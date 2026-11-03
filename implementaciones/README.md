@@ -2,8 +2,8 @@
 Nombre del proyecto: trabajo-integrador-piapc
 Nombre del juego: Turno de Noche
 Estudiante/s: Mauricio Jacki
-Estado: en desarrollo
-Versión: 0.7
+Estado: prototipo funcional
+Versión: 1.0
 ---
 
 # Implementaciones
@@ -12,6 +12,7 @@ Documentación del trabajo integrador de PIAPC.
 
 ## Documentos
 
+- [README principal](../README.md)
 - [GDD breve](GDD.md)
 - [Índice de specs](specs/README.md)
 - [Registro de código](registro%20de%20código/registro.md)
@@ -23,8 +24,9 @@ Documentación del trabajo integrador de PIAPC.
 - Spec 03 — Búsquedas BFS y A*: completada.
 - Spec 04 — Guardias y navegación: completada.
 - Spec 05 — Percepción y FSM: completada.
-- Spec 06 — UI y bucle completo: implementada; pendiente de comprobación.
-- Próxima spec: 07 — Entrega y presentación, después de comprobar la 06.
+- Spec 06 — UI y bucle completo: completada (verificada por el autor).
+- Spec 07 — Entrega y presentación: completada.
+- Próximo paso: verificación final y entrega.
 
 ## Ejecución
 
@@ -48,7 +50,7 @@ Abrir `http://localhost:8080`.
 
 Las mismas opciones están disponibles como botones en el panel lateral.
 
-## Alcance de esta etapa
+## Alcance del prototipo
 
 El prototipo genera un escenario con obstáculos, entrada marcada, reliquia y
 dos guardias que patrullan puntos calculados sobre el mapa. El jugador debe

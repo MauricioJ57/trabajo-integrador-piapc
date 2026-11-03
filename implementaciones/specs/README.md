@@ -12,8 +12,11 @@ prueba jugando y se cierra antes de pasar a la siguiente.
 | 03 | [Búsquedas BFS y A*](03-busquedas.md) | 02 | completada |
 | 04 | [Guardias y navegación](04-guardias-navegacion.md) | 03 | completada |
 | 05 | [Percepción y FSM](05-percepcion-fsm.md) | 04 | completada |
-| 06 | [UI y bucle completo](06-ui-bucle-completo.md) | 05 | implementada |
-| 07 | [Entrega y presentación](07-entrega-presentacion.md) | 06 | pendiente |
+| 06 | [UI y bucle completo](06-ui-bucle-completo.md) | 05 | completada |
+| 07 | [Entrega y presentación](07-entrega-presentacion.md) | 06 | completada |
+
+La presentación de la spec 07 se integra en el README raíz, sin crear un
+documento adicional.
 
 ## Convenciones
 
