@@ -1,6 +1,6 @@
 # Spec 04 — Guardias, patrullaje y navegación
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Depende de:** 03
 **Referencia:** `implementaciones/GDD.md`, secciones 6, 10 y 11.
 

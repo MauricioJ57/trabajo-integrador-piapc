@@ -133,7 +133,7 @@ terminar cada implementación.
 
 ## Spec 04 — Guardias, patrullaje y navegación
 
-**Estado:** implementada (pendiente de comprobación)
+**Estado:** completada (verificada por el autor)
 **Fecha:** 02/11/2026
 
 ### Archivos creados
@@ -154,9 +154,10 @@ terminar cada implementación.
 | `implementaciones/specs/README.md` | Estado de la spec 04 actualizado a implementada. |
 | `implementaciones/registro de código/registro.md` | Este documento de registro. |
 
-### Comprobaciones pendientes (para ejecutar por el autor)
+### Comprobaciones automatizadas (para ejecutar por el autor)
 
-Ejecutar desde la raíz del proyecto.
+Ejecutar desde la raíz del proyecto. El autor ya confirmó el comportamiento
+jugable de esta spec.
 
 ```powershell
 npm.cmd run build
@@ -253,3 +254,170 @@ $script | node --input-type=module -
   conservando la configuración activa.
 - Confirmar que el jugador todavía puede recoger la reliquia y volver a la
   entrada para ganar.
+
+## Spec 05 — Percepción y FSM
+
+**Estado:** implementada (pendiente de comprobación)
+**Fecha:** 03/11/2026
+
+### Archivos creados
+
+| Ruta | Cambio |
+|---|---|
+| `src/game/world/vision.js` | Línea de vista supercover, comprobación de cono y construcción del cono recortado por paredes. |
+
+### Archivos modificados
+
+| Ruta | Cambio |
+|---|---|
+| `src/game/config.js` | Velocidad de persecución, radio/ángulo de visión, barrido de búsqueda, distancia de captura y colores de conos/derrota. |
+| `src/game/entities/guard.js` | FSM PATROL/CHASE/SEARCH/RETURN, última posición conocida, etiqueta de estado, cono y detección de contacto. |
+| `src/game/scenes/Game.js` | Actualización de guardias con el jugador, captura, overlay de derrota, prioridad de victoria y reinicio de overlays. |
+| `implementaciones/README.md` | Versión 0.6, estado de la spec 05, próximo paso y alcance actualizados. |
+| `implementaciones/GDD.md` | Detalle de la espera en PATROL y del barrido de 180° en SEARCH ajustado a la implementación. |
+| `implementaciones/specs/04-guardias-navegacion.md` | Estado actualizado a completada tras la verificación del autor. |
+| `implementaciones/specs/05-percepcion-fsm.md` | Estado, implementación, comportamiento y pruebas jugables actualizados. |
+| `implementaciones/specs/README.md` | Estados de las specs 04 y 05 actualizados. |
+| `implementaciones/registro de código/registro.md` | Este documento de registro. |
+
+### Comprobaciones para el autor
+
+No se ejecutaron durante esta implementación. Ejecutar desde la raíz del
+proyecto.
+
+```powershell
+npm.cmd run build
+```
+
+```powershell
+$script = @'
+import {
+    BOARD_X,
+    GRID_COLS,
+    GRID_ROWS,
+    TILE_SIZE,
+    VISION_HALF_ANGLE,
+    VISION_RADIUS
+} from './src/game/config.js';
+import { Grid, TILE_FLOOR, TILE_WALL } from './src/game/world/grid.js';
+import {
+    buildVisionCone,
+    hasLineOfSight,
+    isInVisionCone
+} from './src/game/world/vision.js';
+
+const failures = [];
+const makeGrid = () => new Grid(
+    Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill(TILE_FLOOR))
+);
+const center = (grid, col, row) => grid.tileToWorldCenter(col, row);
+
+const blocked = makeGrid();
+blocked.map[2][3] = TILE_WALL;
+
+if (hasLineOfSight(blocked, { col: 1, row: 2 }, { col: 5, row: 2 })) {
+    failures.push('la linea de vista atraviesa una pared');
+}
+
+if (!hasLineOfSight(blocked, { col: 1, row: 1 }, { col: 5, row: 1 })) {
+    failures.push('la linea de vista bloquea una linea libre');
+}
+
+const corner = makeGrid();
+corner.map[1][2] = TILE_WALL;
+corner.map[2][1] = TILE_WALL;
+
+if (hasLineOfSight(corner, { col: 1, row: 1 }, { col: 2, row: 2 })) {
+    failures.push('la linea de vista atraviesa una esquina bloqueada');
+}
+
+const open = makeGrid();
+const origin = center(open, 1, 1);
+const front = { x: origin.x + 80, y: origin.y };
+const back = { x: origin.x - 80, y: origin.y };
+const far = { x: origin.x + VISION_RADIUS + 1, y: origin.y };
+const outsideAngle = VISION_HALF_ANGLE + 0.02;
+const outside = {
+    x: origin.x + Math.cos(outsideAngle) * 80,
+    y: origin.y + Math.sin(outsideAngle) * 80
+};
+
+if (!isInVisionCone(origin, 0, front, VISION_RADIUS, VISION_HALF_ANGLE)) {
+    failures.push('no detecta un objetivo al frente');
+}
+
+if (isInVisionCone(origin, 0, back, VISION_RADIUS, VISION_HALF_ANGLE)) {
+    failures.push('detecta un objetivo detrás');
+}
+
+if (isInVisionCone(origin, 0, outside, VISION_RADIUS, VISION_HALF_ANGLE)) {
+    failures.push('detecta fuera del ángulo');
+}
+
+if (isInVisionCone(origin, 0, far, VISION_RADIUS, VISION_HALF_ANGLE)) {
+    failures.push('detecta fuera del radio');
+}
+
+const coneGrid = makeGrid();
+coneGrid.map[2][2] = TILE_WALL;
+const coneOrigin = center(coneGrid, 1, 2);
+const points = buildVisionCone(
+    coneGrid,
+    coneOrigin,
+    0,
+    VISION_RADIUS,
+    VISION_HALF_ANGLE
+);
+const wallLeft = BOARD_X + 2 * TILE_SIZE;
+
+for (const point of points.slice(1)) {
+    const distance = Math.hypot(
+        point.x - coneOrigin.x,
+        point.y - coneOrigin.y
+    );
+    const tile = coneGrid.worldToTile(point.x, point.y);
+
+    if (point.x >= wallLeft - 0.001) {
+        failures.push('el cono atraviesa la pared');
+        break;
+    }
+
+    if (!coneGrid.isWalkable(tile.col, tile.row)) {
+        failures.push('el cono contiene un punto en pared');
+        break;
+    }
+
+    if (distance > VISION_RADIUS + 0.001) {
+        failures.push('el cono excede el radio');
+        break;
+    }
+}
+
+console.log('Fallos:', failures.length);
+
+if (failures.length > 0) {
+    console.log(failures);
+    process.exitCode = 1;
+}
+'@
+
+$script | node --input-type=module -
+```
+
+- Iniciar con `npm.cmd run dev`, abrir `http://localhost:8080` y cruzar el
+  cono de un guardia: debe pasar a CHASE con etiqueta y cono rojos.
+- Escaparse detrás de una pared: debe ir a la última posición conocida, entrar
+  en SEARCH con cono amarillo y barrer 180° durante 2 segundos.
+- Esperar el fin de SEARCH: debe volver con RETURN y luego PATROL, con cono
+  blanco.
+- Confirmar que la espera de PATROL conserva la orientación del cono.
+- Dejarse tocar en PATROL, CHASE, SEARCH y RETURN: debe aparecer la derrota y
+  detenerse la partida.
+- Comprobar que R reinicia la partida y N genera un escenario nuevo desde la
+  derrota.
+- Confirmar que no hay detección a través de paredes y que el cono visible se
+  recorta contra ellas.
+- Repetir la persecución con BFS y A*, y con navegación cruda y suavizada.
+- Confirmar que el jugador sigue siendo más rápido que un guardia en CHASE.
+- Verificar que la victoria con la reliquia sigue funcionando y que R/N
+  restauran correctamente jugador, reliquia y guardias.

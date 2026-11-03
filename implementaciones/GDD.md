@@ -88,16 +88,16 @@ Un guardia detecta al jugador si se cumplen las tres condiciones:
 Al detectar, guarda la posición del jugador como "última posición conocida"
 y pasa a CHASE. Mientras lo vea, actualiza esa posición.
 
-No hay oído ni medidor de sospecha: la detección es inmediata, pero solo se
-pierde si el guardia llega a tocarlo.
+No hay oído ni medidor de sospecha: la detección es inmediata, pero la
+partida solo se pierde si el guardia llega a tocarlo.
 
 ## 8. Comportamiento: FSM
 
 | Estado | Comportamiento | Salidas |
 |---|---|---|
-| PATROL | Va al siguiente punto de patrulla calculando la ruta; espera y gira el cono al llegar. | Ve al jugador → CHASE |
+| PATROL | Va al siguiente punto de patrulla calculando la ruta; espera manteniendo la última orientación del cono. | Ve al jugador → CHASE |
 | CHASE | Persigue al jugador o a su última posición conocida. | Lo ve → mantiene CHASE. Llega sin verlo → SEARCH. Contacto → captura. |
-| SEARCH | Va a la última posición conocida y gira el cono durante ~2 s. | Ve al jugador → CHASE. Termina el tiempo → RETURN. |
+| SEARCH | Va a la última posición conocida y barre el cono 180° durante ~2 s. | Ve al jugador → CHASE. Termina el tiempo → RETURN. |
 | RETURN | Calcula ruta al punto de patrulla más cercano. | Ve al jugador → CHASE. Llega → PATROL. |
 
 El estado actual se muestra como etiqueta sobre cada guardia y el cono

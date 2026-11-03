@@ -35,6 +35,7 @@ export class Game extends Scene
         this.grid = new Grid(this.scenario.map);
         this.hasRelic = false;
         this.gameOver = false;
+        this.gameResult = null;
         this.searchAlgorithm = 'bfs';
         this.navigationMode = 'grid';
         this.debugEnabled = false;
@@ -47,6 +48,7 @@ export class Game extends Scene
 
         this.drawPanel();
         this.createVictoryOverlay();
+        this.createDefeatOverlay();
 
         this.player = new Player(this, this.grid, this.scenario.entrance);
 
@@ -60,6 +62,7 @@ export class Game extends Scene
         this.grid.setMap(scenario.map);
         this.hasRelic = false;
         this.gameOver = false;
+        this.gameResult = null;
 
         this.player.resetTo(scenario.entrance);
 
@@ -80,7 +83,7 @@ export class Game extends Scene
         ));
 
         this.lastDebugStateKey = null;
-        this.hideVictory();
+        this.hideResultOverlays();
         this.drawBoard();
         this.updateStatus();
         this.updateDebugView(true);
@@ -90,11 +93,12 @@ export class Game extends Scene
     {
         this.hasRelic = false;
         this.gameOver = false;
+        this.gameResult = null;
         this.player.resetTo(this.scenario.entrance);
         this.relic.restore();
         this.guards.forEach((guard) => guard.reset());
         this.lastDebugStateKey = null;
-        this.hideVictory();
+        this.hideResultOverlays();
         this.updateStatus();
         this.updateDebugView(true);
     }
@@ -305,6 +309,37 @@ export class Game extends Scene
             .setVisible(false);
     }
 
+    createDefeatOverlay ()
+    {
+        this.defeatOverlay = this.add.rectangle(
+            BOARD_X + BOARD_WIDTH / 2,
+            BOARD_Y + BOARD_HEIGHT / 2,
+            BOARD_WIDTH,
+            BOARD_HEIGHT,
+            COLORS.overlay,
+            0.78
+        )
+            .setDepth(20)
+            .setVisible(false);
+
+        this.defeatText = this.add.text(
+            BOARD_X + BOARD_WIDTH / 2,
+            BOARD_Y + BOARD_HEIGHT / 2,
+            '¡DERROTA!\n\nUn guardia te atrapó.\n\nR: reiniciar    N: nuevo escenario',
+            {
+                fontFamily: 'Arial Black, Arial',
+                fontSize: '30px',
+                color: COLORS.defeat,
+                align: 'center',
+                stroke: '#000000',
+                strokeThickness: 4
+            }
+        )
+            .setOrigin(0.5)
+            .setDepth(21)
+            .setVisible(false);
+    }
+
     setupInput ()
     {
         this.wasd = this.input.keyboard.addKeys('W,S,A,D');
@@ -404,7 +439,11 @@ export class Game extends Scene
         this.checkVictory();
 
         if (!this.gameOver) {
-            this.guards.forEach((guard) => guard.update(delta));
+            this.guards.forEach((guard) => guard.update(delta, this.player));
+
+            if (this.guards.some((guard) => guard.touches(this.player))) {
+                this.showDefeat();
+            }
         }
 
         this.updateDebugView();
@@ -576,16 +615,31 @@ export class Game extends Scene
     showVictory ()
     {
         this.gameOver = true;
+        this.gameResult = 'victory';
+        this.hideResultOverlays();
         this.victoryOverlay.setVisible(true);
         this.victoryText.setVisible(true);
         this.updateStatus();
         this.updateDebugView(true);
     }
 
-    hideVictory ()
+    showDefeat ()
+    {
+        this.gameOver = true;
+        this.gameResult = 'defeat';
+        this.hideResultOverlays();
+        this.defeatOverlay.setVisible(true);
+        this.defeatText.setVisible(true);
+        this.updateStatus();
+        this.updateDebugView(true);
+    }
+
+    hideResultOverlays ()
     {
         this.victoryOverlay.setVisible(false);
         this.victoryText.setVisible(false);
+        this.defeatOverlay.setVisible(false);
+        this.defeatText.setVisible(false);
     }
 
     updateStatus ()
@@ -595,7 +649,7 @@ export class Game extends Scene
             ? 'suavizada'
             : 'cruda';
         const debugLabel = this.debugEnabled ? 'ON' : 'OFF';
-        const relicState = this.gameOver
+        const relicState = this.gameResult === 'victory'
             ? 'entregada'
             : this.hasRelic
                 ? 'en mano'

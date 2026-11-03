@@ -17,7 +17,15 @@ export const PLAYER_SPEED = 130;
 
 export const GUARD_SIZE = 18;
 export const GUARD_SPEED = 70;
+export const GUARD_CHASE_SPEED = 100;
 export const GUARD_WAIT_MS = 1000;
+
+export const VISION_RADIUS = 5 * TILE_SIZE;
+export const VISION_ANGLE = (70 * Math.PI) / 180;
+export const VISION_HALF_ANGLE = VISION_ANGLE / 2;
+export const SEARCH_DURATION_MS = 2000;
+export const SEARCH_SWEEP_HALF_ANGLE = Math.PI / 2;
+export const CAPTURE_DISTANCE = (PLAYER_SIZE + GUARD_SIZE) / 2;
 
 export const COLORS = {
     background: 0x0b0f14,
@@ -38,11 +46,15 @@ export const COLORS = {
     debugPath: 0x22d3ee,
     debugGuardA: 0xf97316,
     debugGuardB: 0xa78bfa,
+    visionPatrol: 0xffffff,
+    visionSearch: 0xfacc15,
+    visionChase: 0xef4444,
     overlay: 0x020617,
     panel: 0x0f172a,
     panelEdge: 0x334155,
     text: '#e2e8f0',
     muted: '#94a3b8',
     accent: '#38bdf8',
-    victory: '#fde68a'
+    victory: '#fde68a',
+    defeat: '#fecaca'
 };
